@@ -1,0 +1,71 @@
+roles:
+  Engineer:
+    keywords:
+      - code
+      - programming
+      - development
+      - implementation
+      - technical
+      - architecture
+      - software
+      - bug
+      - feature
+      - api
+      - database
+      - testing
+      - deployment
+      - infrastructure
+      - system
+      - algorithm
+      - performance
+      - optimization
+    projects:
+      - engineering
+      - development
+      - technical
+      - infrastructure
+
+  Support:
+    keywords:
+      - customer
+      - issue
+      - ticket
+      - problem
+      - help
+      - support
+      - request
+      - complaint
+      - resolution
+      - troubleshooting
+      - user
+      - client
+      - service
+      - assistance
+      - inquiry
+    projects:
+      - support
+      - customer-service
+      - helpdesk
+
+  "Product Manager":
+    keywords:
+      - product
+      - feature
+      - roadmap
+      - strategy
+      - requirement
+      - user story
+      - priority
+      - release
+      - market
+      - stakeholder
+      - business
+      - metric
+      - goal
+      - vision
+      - planning
+    projects:
+      - product
+      - product-management
+      - strategy
+

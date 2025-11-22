@@ -1,0 +1,50 @@
+# Ruff configuration
+# Combines flake8 and isort rules
+
+[tool.ruff]
+# Same as pyproject.toml
+line-length = 88
+target-version = "py311"
+
+# Enable flake8 rules
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "N",   # pep8-naming
+    "UP",  # pyupgrade
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "SIM", # flake8-simplify
+]
+
+ignore = [
+    "E501",  # line too long (handled by formatter)
+    "B008",  # do not perform function calls in argument defaults
+    "B904",  # allow `raise` without specifying exception in except blocks
+]
+
+# isort configuration
+[tool.ruff.lint.isort]
+known-first-party = ["mtm"]
+
+# pyupgrade configuration
+[tool.ruff.lint.upgrade]
+keep-runtime-typing = true
+
+# Exclude patterns
+exclude = [
+    ".git",
+    "__pycache__",
+    ".venv",
+    "venv",
+    "env",
+    ".mypy_cache",
+    ".pytest_cache",
+    "build",
+    "dist",
+    "*.egg-info",
+]
+

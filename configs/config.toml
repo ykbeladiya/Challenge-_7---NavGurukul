@@ -1,0 +1,28 @@
+[mtm]
+# Input directories to scan for meeting notes
+input_dirs = ["data/seed/notes"]
+
+# Output directory for generated modules
+output_dir = "outputs"
+
+# Database path for storing metadata and indexes
+db_path = "outputs/mtm.db"
+
+# Language for text processing (ISO 639-1 code)
+language = "en"
+
+# Minimum number of supporting documents for a theme to be considered
+min_theme_support = 3
+
+# Number of clusters for K-means clustering
+kmeans_k = 6
+
+# Path to redaction rules file (optional)
+# redact_rules = null
+
+# Role taxonomy identifier
+role_taxonomy = "default"
+
+# Enable PDF to text conversion
+enable_pdf_to_text = true
+
