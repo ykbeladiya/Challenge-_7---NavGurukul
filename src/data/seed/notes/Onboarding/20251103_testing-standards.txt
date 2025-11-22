@@ -1,0 +1,16 @@
+Meeting Notes: Testing standards
+Date: 2025-11-03
+Project: Onboarding
+Attendees: Bob, Eve
+
+Discussion:
+  - Reviewed testing standards procedures.
+  - Agreed on next steps and timeline.
+
+Decisions:
+  - Standardized approach for testing standards
+  - Timeline: 2025-11-17
+
+Action Items:
+  - Eve: Complete task by 2025-11-10
+  - Eve: Review and provide feedback

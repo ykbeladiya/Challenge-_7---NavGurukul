@@ -1,0 +1,98 @@
+# {{ title }}
+
+{% if description %}
+{{ description }}
+{% endif %}
+
+**Last Updated:** {{ last_updated }}  
+**Project:** {{ project }}  
+**Module Type:** Tutorial
+
+## Table of Contents
+
+{% if toc %}
+{% for item in toc %}
+- [{{ item.title }}](#{{ item.anchor }})
+{% endfor %}
+{% else %}
+- [Overview](#overview)
+{% endif %}
+
+---
+
+## Overview
+
+{% if content %}
+{{ content }}
+{% endif %}
+
+{% if steps %}
+## Steps
+
+{% for step in steps %}
+### Step {{ step.step_number }}: {{ step.title }}
+
+{{ step.description }}
+
+{% if step.roles %}
+**Relevant Roles:** {{ step.roles | join(", ") }}
+{% endif %}
+
+{% endfor %}
+{% endif %}
+
+{% if definitions %}
+## Key Definitions
+
+{% for definition in definitions %}
+### {{ definition.term }}
+
+{{ definition.definition }}
+
+{% if definition.context %}
+*Context:* {{ definition.context }}
+{% endif %}
+
+{% endfor %}
+{% endif %}
+
+{% if themes %}
+## Related Themes
+
+{% for theme in themes %}
+- **{{ theme.name }}**: {{ theme.description or "No description" }} ({{ theme.support_count }} supporting segments)
+{% endfor %}
+{% endif %}
+
+---
+
+## Source References
+
+{% if backlinks %}
+{% if backlinks.note_id %}
+**Source Note:** `{{ backlinks.note_id }}`
+{% endif %}
+
+{% if backlinks.segment_ids %}
+**Source Segments:** {{ backlinks.segment_ids | length }} segment(s)
+{% for seg_id in backlinks.segment_ids[:5] %}
+- `{{ seg_id }}`
+{% endfor %}
+{% if backlinks.segment_ids | length > 5 %}
+- ... and {{ backlinks.segment_ids | length - 5 }} more
+{% endif %}
+{% endif %}
+{% endif %}
+
+---
+
+## Statistics
+
+- **Total Steps:** {{ counts.steps or 0 }}
+- **Total Definitions:** {{ counts.definitions or 0 }}
+- **Total Themes:** {{ counts.themes or 0 }}
+- **Total FAQs:** {{ counts.faqs or 0 }}
+- **Total Decisions:** {{ counts.decisions or 0 }}
+- **Total Actions:** {{ counts.actions or 0 }}
+- **Version:** {{ version or 1 }}
+

@@ -1,0 +1,180 @@
+# {{ title }}
+
+{% if description %}
+{{ description }}
+{% endif %}
+
+**Last Updated:** {{ last_updated }}  
+**Project:** {{ project }}  
+**Module Type:** Index
+
+## Table of Contents
+
+{% if toc %}
+{% for item in toc %}
+- [{{ item.title }}](#{{ item.anchor }})
+{% endfor %}
+{% else %}
+- [Overview](#overview)
+- [Project Index](#project-index)
+{% endif %}
+
+---
+
+## Overview
+
+{% if content %}
+{{ content }}
+{% endif %}
+
+This is the index for **{{ project }}** project.
+
+---
+
+## Project Index
+
+### Project Statistics
+
+- **Total Modules:** {{ counts.modules or 0 }}
+- **Total Themes:** {{ counts.themes or 0 }}
+- **Total Steps:** {{ counts.steps or 0 }}
+- **Total Definitions:** {{ counts.definitions or 0 }}
+- **Total FAQs:** {{ counts.faqs or 0 }}
+- **Total Decisions:** {{ counts.decisions or 0 }}
+- **Total Actions:** {{ counts.actions or 0 }}
+- **Total Topics:** {{ counts.topics or 0 }}
+
+---
+
+{% if projects %}
+## Per-Project Indexes
+
+{% for proj_name, proj_data in projects.items() %}
+### {{ proj_name }}
+
+**Statistics:**
+- Modules: {{ proj_data.counts.modules or 0 }}
+- Themes: {{ proj_data.counts.themes or 0 }}
+- Steps: {{ proj_data.counts.steps or 0 }}
+- Definitions: {{ proj_data.counts.definitions or 0 }}
+- FAQs: {{ proj_data.counts.faqs or 0 }}
+- Decisions: {{ proj_data.counts.decisions or 0 }}
+- Actions: {{ proj_data.counts.actions or 0 }}
+
+{% if proj_data.modules %}
+**Modules:**
+{% for module in proj_data.modules %}
+- [{{ module.title }}]({{ module.filename or "#" }}) - {{ module.module_type or "module" }}
+{% endfor %}
+{% endif %}
+
+{% if proj_data.themes %}
+**Themes:**
+{% for theme in proj_data.themes %}
+- **{{ theme.name }}**: {{ theme.description or "No description" }} ({{ theme.support_count }} segments)
+{% endfor %}
+{% endif %}
+
+{% if proj_data.roles %}
+**Roles:**
+{% for role_name, role_data in proj_data.roles.items() %}
+- **{{ role_name }}**: {{ role_data.count or 0 }} mappings (avg confidence: {{ "%.1f" | format(role_data.avg_confidence or 0) }}%)
+{% endfor %}
+{% endif %}
+
+---
+
+{% endfor %}
+{% endif %}
+
+{% if all_modules %}
+## All Modules
+
+{% for module in all_modules %}
+### [{{ module.title }}]({{ module.filename or "#" }})
+
+**Type:** {{ module.module_type or "module" }}  
+**Project:** {{ module.project }}  
+**Version:** {{ module.version or 1 }}
+
+{% if module.description %}
+{{ module.description }}
+{% endif %}
+
+---
+
+{% endfor %}
+{% endif %}
+
+{% if all_themes %}
+## All Themes
+
+{% for theme in all_themes %}
+### {{ theme.name }}
+
+**Project:** {{ theme.project }}  
+**Support Count:** {{ theme.support_count }}  
+**Keywords:** {{ theme.keywords | join(", ") }}
+
+{% if theme.description %}
+{{ theme.description }}
+{% endif %}
+
+---
+
+{% endfor %}
+{% endif %}
+
+{% if role_mappings %}
+## Role Mappings
+
+{% for role_name, mappings in role_mappings.items() %}
+### {{ role_name }}
+
+**Total Mappings:** {{ mappings | length }}
+
+{% for mapping in mappings[:10] %}
+- `{{ mapping.topic_id }}` ({{ "%.1f" | format(mapping.confidence or 0) }}% confidence)
+{% endfor %}
+{% if mappings | length > 10 %}
+- ... and {{ mappings | length - 10 }} more
+{% endif %}
+
+{% endfor %}
+{% endif %}
+
+---
+
+## Source References
+
+{% if backlinks %}
+{% if backlinks.note_id %}
+**Source Note:** `{{ backlinks.note_id }}`
+{% endif %}
+
+{% if backlinks.segment_ids %}
+**Source Segments:** {{ backlinks.segment_ids | length }} segment(s)
+{% for seg_id in backlinks.segment_ids[:5] %}
+- `{{ seg_id }}`
+{% endfor %}
+{% if backlinks.segment_ids | length > 5 %}
+- ... and {{ backlinks.segment_ids | length - 5 }} more
+{% endif %}
+{% endif %}
+{% endif %}
+
+---
+
+## Statistics
+
+- **Total Modules:** {{ counts.modules or 0 }}
+- **Total Themes:** {{ counts.themes or 0 }}
+- **Total Steps:** {{ counts.steps or 0 }}
+- **Total Definitions:** {{ counts.definitions or 0 }}
+- **Total FAQs:** {{ counts.faqs or 0 }}
+- **Total Decisions:** {{ counts.decisions or 0 }}
+- **Total Actions:** {{ counts.actions or 0 }}
+- **Total Topics:** {{ counts.topics or 0 }}
+- **Total Projects:** {{ projects | length if projects else 0 }}
+- **Version:** {{ version or 1 }}
+
