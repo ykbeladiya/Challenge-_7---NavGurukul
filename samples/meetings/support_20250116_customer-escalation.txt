@@ -1,0 +1,91 @@
+---
+project: Support
+date: 2025-01-16T14:30:00Z
+themes:
+  - id: escalation-procedures
+    keywords: [escalate, priority, urgent, customer, ticket]
+  - id: customer-communication
+    keywords: [response, update, follow-up, resolution]
+steps:
+  - step_number: 1
+    title: Assess ticket priority
+    description: "Review ticket details and determine if escalation is needed"
+  - step_number: 2
+    title: Notify customer
+    description: "Send acknowledgment email within 1 hour"
+  - step_number: 3
+    title: Escalate to engineering
+    description: "Create internal ticket and assign to appropriate team"
+definitions:
+  - term: Escalation
+    definition: The process of transferring a support ticket to a higher level of expertise
+  - term: SLA
+    definition: Service Level Agreement - committed response and resolution times
+faqs:
+  - question: When should I escalate a ticket?
+    answer: Escalate when the issue is beyond your expertise or requires engineering intervention
+  - question: What is the response time SLA?
+    answer: Initial response within 1 hour, resolution within 24 hours for high priority
+decisions:
+  - decision: Implement automated escalation for tickets open > 48 hours
+    rationale: Ensures no tickets are forgotten and improves customer satisfaction
+actions:
+  - action: Create escalation runbook
+    owner: Support Manager
+    due_date: 2025-01-25
+roles:
+  - Support: [escalation-procedures, customer-communication]
+  - Support Manager: [escalation-procedures]
+---
+
+Support Team Meeting - Customer Escalation Process
+Date: January 16, 2025
+Time: 2:30 PM
+
+Attendees:
+- Emma (Support Manager)
+- Frank (Support Agent)
+- Grace (Support Agent)
+- Henry (Support Agent)
+
+AGENDA:
+1. Review escalation procedures
+2. Discuss customer communication standards
+3. Update SLA guidelines
+
+DISCUSSION:
+
+Escalation Process:
+Emma: "Let's clarify our escalation workflow. When should you escalate a ticket?"
+
+Frank: "I think we should escalate when the issue is beyond our expertise or requires engineering intervention."
+
+Grace: "Here's the process I follow:
+1. Assess ticket priority - review details and determine if escalation is needed
+2. Notify customer - send acknowledgment email within 1 hour
+3. Escalate to engineering - create internal ticket and assign to appropriate team"
+
+Customer Communication:
+Henry: "We need to improve our response times. What's our SLA?"
+
+Emma: "Our Service Level Agreement commits to:
+- Initial response within 1 hour
+- Resolution within 24 hours for high priority tickets"
+
+DEFINITIONS:
+Escalation: The process of transferring a support ticket to a higher level of expertise.
+SLA: Service Level Agreement - committed response and resolution times.
+
+FAQs:
+Q: When should I escalate a ticket?
+A: Escalate when the issue is beyond your expertise or requires engineering intervention.
+
+Q: What is the response time SLA?
+A: Initial response within 1 hour, resolution within 24 hours for high priority.
+
+DECISION:
+We will implement automated escalation for tickets open > 48 hours. This ensures no tickets are forgotten and improves customer satisfaction.
+
+ACTION ITEMS:
+- Create escalation runbook (Owner: Support Manager, Due: 2025-01-25)
+

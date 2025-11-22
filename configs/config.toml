@@ -20,6 +20,17 @@ kmeans_k = 6
 # Path to redaction rules file (optional)
 # redact_rules = null
 
+# Redaction settings
+[mtm.redaction]
+# Enable PII redaction before export
+enable_redaction = false
+# Use Named Entity Recognition (requires spacy and en_core_web_sm model)
+use_ner = true
+# Terms/patterns to never redact (allowlist)
+allowlist = []
+# Terms/patterns to always redact (denylist)
+denylist = []
+
 # Role taxonomy identifier
 role_taxonomy = "default"
 

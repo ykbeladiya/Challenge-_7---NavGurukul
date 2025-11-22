@@ -68,20 +68,45 @@ def ingest(
     source: Optional[str] = typer.Argument(None, help="Source file or directory (default: use config input_dirs)"),
     output: Optional[str] = typer.Option(None, "--output", "-o", help="Output directory"),
     format: Optional[str] = typer.Option(None, "--format", "-f", help="Input format (auto-detect if not specified)"),
+    source_type: Optional[str] = typer.Option(None, "--source", "-s", help="External source: docs, notion, zoom, or meet"),
 ) -> None:
     """Ingest meeting notes from various sources.
     
     Supports Markdown (.md), Text (.txt), Word (.docx), and PDF (.pdf) files.
+    Also supports external sources: Google Docs, Notion, Zoom, Google Meet.
     Files are parsed, deduplicated, and stored in the database.
     
     Examples:
         mtm ingest                          # Ingest from config input_dirs
         mtm ingest data/meeting-notes/      # Ingest from specific directory
         mtm ingest meeting.md               # Ingest a single file
+        mtm ingest --source docs            # Ingest from Google Docs
+        mtm ingest --source notion          # Ingest from Notion
+        mtm ingest --source zoom            # Ingest from Zoom
+        mtm ingest --source meet            # Ingest from Google Meet
     """
     logger = create_logger("ingest")
     config = get_config()
     db = get_db()
+
+    # Handle external sources
+    if source_type:
+        from mtm.ingest.connectors import get_connector
+
+        try:
+            connector = get_connector(source_type)
+            if not connector.authenticate():
+                console.print(f"[red]Failed to authenticate with {source_type}[/red]")
+                raise typer.Exit(1)
+
+            # Ingest from connector (placeholder - would list and ingest items)
+            console.print(f"[yellow]Connector support for {source_type} is a skeleton implementation[/yellow]")
+            console.print(f"[yellow]Full implementation requires API credentials and libraries[/yellow]")
+            logger.finish(success=False)
+            raise typer.Exit(1)
+        except ValueError as e:
+            console.print(f"[red]{e}[/red]")
+            raise typer.Exit(1)
 
     # Determine input directories
     if source:
@@ -690,31 +715,53 @@ def export(
     project: Optional[str] = typer.Option(None, "--project", "-p", help="Project name (default: all projects)"),
     output: Optional[str] = typer.Option(None, "--output", "-o", help="Output directory for exports"),
     no_pdf: bool = typer.Option(False, "--no-pdf", help="Skip PDF conversions (pandoc not required)"),
+    format: Optional[str] = typer.Option(None, "--format", "-f", help="Export format: default, scorm, or xapi"),
 ) -> None:
-    """Export knowledge base to CSV files and optional PDFs.
+    """Export knowledge base to various formats.
     
-    Creates a timestamped export directory containing:
+    Default format creates a timestamped export directory containing:
     - CSV files: steps.csv, definitions.csv, faqs.csv, decisions.csv, actions.csv, themes.csv
     - Markdown modules
     - PDF versions (if pandoc is available and --pdf is used)
     - README.md with export information
     
+    SCORM format creates a SCORM 1.2 compliant package (ZIP file).
+    xAPI format creates an xAPI package (JSON file).
+    
     Examples:
-        mtm export                           # Export all projects
+        mtm export                           # Export all projects (default format)
         mtm export --project Onboarding     # Export specific project
         mtm export --no-pdf                  # Skip PDF conversion
+        mtm export --format scorm            # Export as SCORM 1.2 package
+        mtm export --format xapi             # Export as xAPI package
     """
     logger = create_logger("export")
-    from mtm.utils.export import create_export
 
     try:
-        zip_path = create_export(project=project, output_base=output, include_pdf=not no_pdf)
+        if format and format.lower() in ["scorm", "xapi"]:
+            # LMS export
+            from mtm.utils.lms_export import export_to_lms
 
-        logger.increment_count("exports_created")
-        console.print(f"[green]Export created:[/green] {zip_path}")
-        console.print(f"[dim]Export directory:[/dim] {zip_path.parent / zip_path.stem.replace('export_', '')}")
+            package_path = export_to_lms(
+                format=format.lower(),
+                project=project,
+                output_path=output,
+            )
 
-        logger.finish(success=True)
+            logger.increment_count("lms_exports_created")
+            console.print(f"[green]LMS export created:[/green] {package_path}")
+            logger.finish(success=True)
+        else:
+            # Default export
+            from mtm.utils.export import create_export
+
+            zip_path = create_export(project=project, output_base=output, include_pdf=not no_pdf)
+
+            logger.increment_count("exports_created")
+            console.print(f"[green]Export created:[/green] {zip_path}")
+            console.print(f"[dim]Export directory:[/dim] {zip_path.parent / zip_path.stem.replace('export_', '')}")
+
+            logger.finish(success=True)
 
     except Exception as e:
         logger.add_error("export_error", f"Error creating export: {str(e)}", "Check database connection and output directory permissions")

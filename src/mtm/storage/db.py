@@ -199,6 +199,16 @@ class Database:
             self.db["modules"].create_index(["project"])
             self.db["modules"].create_index(["module_type"])
             self.db["modules"].create_index(["version"])
+        else:
+            # Add review workflow columns if they don't exist
+            table = self.db["modules"]
+            columns = table.columns_dict
+            if "approval_state" not in columns:
+                self.db.execute("ALTER TABLE modules ADD COLUMN approval_state TEXT DEFAULT 'draft'")
+                table.create_index(["approval_state"])
+            if "owner" not in columns:
+                self.db.execute("ALTER TABLE modules ADD COLUMN owner TEXT")
+                table.create_index(["owner"])
 
         # Versions table
         if "versions" not in self.db.table_names():
@@ -248,6 +258,27 @@ class Database:
             self.db["runs"].create_index(["project"])
             self.db["runs"].create_index(["status"])
             self.db["runs"].create_index(["started_at"])
+
+        # Audit log table (for tracking who/what/when)
+        if "audit_log" not in self.db.table_names():
+            self.db["audit_log"].create(
+                {
+                    "id": str,  # UUID as string
+                    "action": str,  # create, update, delete, approve, reject, export, etc.
+                    "entity_type": str,  # note, segment, theme, module, extraction, etc.
+                    "entity_id": str,  # ID of the entity
+                    "user": str,  # User identifier (from environment or CLI)
+                    "details": str,  # JSON object with action-specific details
+                    "content_hash": str,  # SHA256 hash of content before/after change
+                    "created_at": str,  # Timestamp
+                },
+                pk="id",
+            )
+            self.db["audit_log"].create_index(["action"])
+            self.db["audit_log"].create_index(["entity_type"])
+            self.db["audit_log"].create_index(["entity_id"])
+            self.db["audit_log"].create_index(["user"])
+            self.db["audit_log"].create_index(["created_at"])
 
     # Upsert helpers
 
@@ -582,6 +613,88 @@ class Database:
         }
 
         self.db["runs"].upsert(record, pk="id")
+
+    def log_audit(
+        self,
+        action: str,
+        entity_type: str,
+        entity_id: str,
+        user: Optional[str] = None,
+        details: Optional[dict[str, Any]] = None,
+        content_hash: Optional[str] = None,
+    ) -> None:
+        """Log an audit event.
+
+        Args:
+            action: Action performed (create, update, delete, approve, reject, export, etc.)
+            entity_type: Type of entity (note, segment, theme, module, extraction, etc.)
+            entity_id: ID of the entity
+            user: User identifier (defaults to environment variable or 'system')
+            details: Additional action-specific details as JSON
+            content_hash: SHA256 hash of content before/after change
+        """
+        import os
+        import hashlib
+        from uuid import uuid4
+
+        if user is None:
+            user = os.getenv("MTM_USER", os.getenv("USER", os.getenv("USERNAME", "system")))
+
+        now = datetime.now().isoformat()
+        record = {
+            "id": str(uuid4()),
+            "action": action,
+            "entity_type": entity_type,
+            "entity_id": str(entity_id),
+            "user": user,
+            "details": json.dumps(details or {}),
+            "content_hash": content_hash or "",
+            "created_at": now,
+        }
+
+        self.db["audit_log"].insert(record)
+
+    def get_audit_log(
+        self,
+        entity_type: Optional[str] = None,
+        entity_id: Optional[str] = None,
+        action: Optional[str] = None,
+        user: Optional[str] = None,
+        limit: int = 100,
+    ) -> list[dict[str, Any]]:
+        """Get audit log entries.
+
+        Args:
+            entity_type: Filter by entity type
+            entity_id: Filter by entity ID
+            action: Filter by action
+            user: Filter by user
+            limit: Maximum number of entries to return
+
+        Returns:
+            List of audit log entries
+        """
+        conditions = []
+        params = []
+
+        if entity_type:
+            conditions.append("entity_type = ?")
+            params.append(entity_type)
+        if entity_id:
+            conditions.append("entity_id = ?")
+            params.append(entity_id)
+        if action:
+            conditions.append("action = ?")
+            params.append(action)
+        if user:
+            conditions.append("user = ?")
+            params.append(user)
+
+        where_clause = " AND ".join(conditions) if conditions else "1=1"
+        query = f"{where_clause} ORDER BY created_at DESC LIMIT ?"
+        params.append(limit)
+
+        return list(self.db["audit_log"].rows_where(query, params))
 
 
 # Global database instance (lazy loaded)

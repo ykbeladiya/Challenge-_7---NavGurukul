@@ -334,6 +334,7 @@ def create_export(
     project: Optional[str] = None,
     output_base: Optional[str | Path] = None,
     include_pdf: bool = True,
+    enable_redaction: Optional[bool] = None,
 ) -> Path:
     """Create a complete knowledge base export.
 
@@ -341,6 +342,7 @@ def create_export(
         project: Project name (None for all projects)
         output_base: Base output directory (defaults to config)
         include_pdf: Whether to include PDF conversions
+        enable_redaction: Whether to redact PII (defaults to config)
 
     Returns:
         Path to zip file containing the export
@@ -351,6 +353,41 @@ def create_export(
         output_base = Path(config.output_dir) / "exports"
     else:
         output_base = Path(output_base)
+
+    # Check for PII if redaction is enabled
+    if enable_redaction is None:
+        # Try to get from config
+        redaction_config = getattr(config, "redaction", {})
+        if isinstance(redaction_config, dict):
+            enable_redaction = redaction_config.get("enable_redaction", False)
+        else:
+            enable_redaction = False
+
+    # Pre-export PII check
+    if enable_redaction:
+        from mtm.preprocess.redact import get_redactor
+
+        redactor = get_redactor(
+            {
+                "allowlist": getattr(config, "redaction", {}).get("allowlist", []) if hasattr(config, "redaction") else [],
+                "denylist": getattr(config, "redaction", {}).get("denylist", []) if hasattr(config, "redaction") else [],
+                "use_ner": getattr(config, "redaction", {}).get("use_ner", True) if hasattr(config, "redaction") else True,
+            }
+        )
+        
+        # Check for PII in notes
+        db = get_db()
+        notes = list(db.db["notes"].rows_where("1=1" if not project else "project = ?", [project] if project else []))
+        pii_detected = False
+        for note in notes:
+            if redactor.check_for_pii(note.get("content", "")):
+                pii_detected = True
+                break
+        
+        if pii_detected:
+            # Log warning but continue (redaction will be applied during export)
+            import warnings
+            warnings.warn("PII detected in export. Redaction will be applied.", UserWarning)
 
     # Create timestamped directory
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")

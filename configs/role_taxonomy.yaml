@@ -69,3 +69,53 @@ roles:
       - product-management
       - strategy
 
+# Learning paths configuration
+learning_paths:
+  Engineer:
+    prerequisites: []
+    modules:
+      - type: tutorial
+        order: 1
+        theme_keywords: [development, setup, environment]
+      - type: howto
+        order: 2
+        theme_keywords: [code, implementation, feature]
+      - type: tutorial
+        order: 3
+        theme_keywords: [testing, quality, review]
+    completion_criteria:
+      - Complete all tutorials
+      - Pass code review assessment
+  
+  Support:
+    prerequisites: []
+    modules:
+      - type: tutorial
+        order: 1
+        theme_keywords: [customer, ticket, escalation]
+      - type: faq
+        order: 2
+        theme_keywords: [support, issue, resolution]
+      - type: howto
+        order: 3
+        theme_keywords: [troubleshooting, communication]
+    completion_criteria:
+      - Complete all support modules
+      - Pass customer service assessment
+
+  "Product Manager":
+    prerequisites: []
+    modules:
+      - type: tutorial
+        order: 1
+        theme_keywords: [roadmap, planning, strategy]
+      - type: howto
+        order: 2
+        theme_keywords: [stakeholder, requirement, feature]
+      - type: faq
+        order: 3
+        theme_keywords: [product, release, metric]
+    completion_criteria:
+      - Complete all product modules
+      - Pass product planning assessment
+
