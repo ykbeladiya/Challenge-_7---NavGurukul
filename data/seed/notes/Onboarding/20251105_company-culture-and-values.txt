@@ -1,0 +1,16 @@
+Meeting Notes: Company culture and values
+Date: 2025-11-05
+Project: Onboarding
+Attendees: Alice, Diana, Charlie, Eve
+
+Discussion:
+  - Identified key challenges and opportunities.
+  - Reviewed company culture and values procedures.
+
+Decisions:
+  - Standardized approach for company culture and values
+  - Timeline: 2025-11-19
+
+Action Items:
+  - Diana: Complete task by 2025-11-12
+  - Charlie: Review and provide feedback

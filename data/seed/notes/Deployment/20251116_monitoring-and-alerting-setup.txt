@@ -1,0 +1,17 @@
+Meeting Notes: Monitoring and alerting setup
+Date: 2025-11-16
+Project: Deployment
+Attendees: Grace, Henry, Frank, Iris
+
+Discussion:
+  - Identified key challenges and opportunities.
+  - Agreed on next steps and timeline.
+  - Reviewed monitoring and alerting setup procedures.
+
+Decisions:
+  - Standardized approach for monitoring and alerting setup
+  - Timeline: 2025-11-30
+
+Action Items:
+  - Grace: Complete task by 2025-11-23
+  - Henry: Review and provide feedback

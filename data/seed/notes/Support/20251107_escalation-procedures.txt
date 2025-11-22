@@ -1,0 +1,17 @@
+Meeting Notes: Escalation procedures
+Date: 2025-11-07
+Project: Support
+Attendees: Noah, Mia
+
+Discussion:
+  - Reviewed escalation procedures procedures.
+  - Agreed on next steps and timeline.
+  - Identified key challenges and opportunities.
+
+Decisions:
+  - Standardized approach for escalation procedures
+  - Timeline: 2025-11-21
+
+Action Items:
+  - Noah: Complete task by 2025-11-14
+  - Noah: Review and provide feedback

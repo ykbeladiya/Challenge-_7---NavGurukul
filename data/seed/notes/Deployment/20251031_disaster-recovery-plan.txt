@@ -1,0 +1,16 @@
+Meeting Notes: Disaster recovery plan
+Date: 2025-10-31
+Project: Deployment
+Attendees: Henry, Grace, Frank
+
+Discussion:
+  - Reviewed disaster recovery plan procedures.
+  - Identified key challenges and opportunities.
+
+Decisions:
+  - Standardized approach for disaster recovery plan
+  - Timeline: 2025-11-14
+
+Action Items:
+  - Frank: Complete task by 2025-11-07
+  - Frank: Review and provide feedback

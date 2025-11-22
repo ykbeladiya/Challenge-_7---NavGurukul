@@ -31,6 +31,7 @@ class StructuredLogger:
         self.skipped_files: list[dict[str, str]] = []
         self.errors: list[dict[str, str]] = []
         self.log_to_file = log_to_file
+        self._writing_log = False  # Guard to prevent recursive logging
 
         # Create log entry for command start
         self.log("command_start", {"command": command_name})
@@ -93,16 +94,24 @@ class StructuredLogger:
         Args:
             entry: Log entry dictionary
         """
-        config = get_config()
-        logs_dir = Path(config.output_dir) / "logs"
-        logs_dir.mkdir(parents=True, exist_ok=True)
+        # Guard against recursive calls
+        if self._writing_log:
+            return
+        self._writing_log = True
+        
+        try:
+            config = get_config()
+            logs_dir = Path(config.output_dir) / "logs"
+            logs_dir.mkdir(parents=True, exist_ok=True)
 
-        # Use date-based filename
-        date_str = datetime.now().strftime("%Y%m%d")
-        log_file = logs_dir / f"{date_str}.jsonl"
+            # Use date-based filename
+            date_str = datetime.now().strftime("%Y%m%d")
+            log_file = logs_dir / f"{date_str}.jsonl"
 
-        with open(log_file, "a", encoding="utf-8") as f:
-            f.write(json.dumps(entry, ensure_ascii=False) + "\n")
+            with open(log_file, "a", encoding="utf-8") as f:
+                f.write(json.dumps(entry, ensure_ascii=False) + "\n")
+        finally:
+            self._writing_log = False
 
     def finish(self, success: bool = True) -> None:
         """Finish logging and display summary.

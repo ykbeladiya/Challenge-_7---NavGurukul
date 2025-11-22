@@ -289,10 +289,11 @@ class Database:
         }
 
         # Check if exists to set created_at
-        existing = self.db["notes"].get(note_id_str)
-        if existing:
+        try:
+            existing = self.db["notes"].get(note_id_str)
             record["created_at"] = existing["created_at"]
-        else:
+        except sqlite_utils.db.NotFoundError:
+            # Note doesn't exist yet, set created_at to now
             record["created_at"] = now
 
         self.db["notes"].upsert(record, pk="id")
@@ -341,10 +342,11 @@ class Database:
             "updated_at": now,
         }
 
-        existing = self.db["segments"].get(segment_id_str)
-        if existing:
+        try:
+            existing = self.db["segments"].get(segment_id_str)
             record["created_at"] = existing["created_at"]
-        else:
+        except sqlite_utils.db.NotFoundError:
+            # Segment doesn't exist yet, set created_at to now
             record["created_at"] = now
 
         self.db["segments"].upsert(record, pk="id")

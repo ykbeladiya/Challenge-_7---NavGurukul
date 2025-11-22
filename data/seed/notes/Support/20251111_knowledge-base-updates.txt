@@ -1,0 +1,16 @@
+Meeting Notes: Knowledge base updates
+Date: 2025-11-11
+Project: Support
+Attendees: Olivia, Karen, Mia
+
+Discussion:
+  - Agreed on next steps and timeline.
+  - Reviewed knowledge base updates procedures.
+
+Decisions:
+  - Standardized approach for knowledge base updates
+  - Timeline: 2025-11-25
+
+Action Items:
+  - Mia: Complete task by 2025-11-18
+  - Karen: Review and provide feedback

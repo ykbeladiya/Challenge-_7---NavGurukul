@@ -1,5 +1,6 @@
 """CLI interface for meeting-to-modules."""
 
+import builtins
 import hashlib
 import json
 from collections import defaultdict
@@ -207,10 +208,18 @@ def ingest(
                 logger.increment_count(file_ext.replace(".", ""))
 
             except Exception as e:
+                import traceback
+                error_type = type(e).__name__
+                error_msg = str(e) if str(e) else repr(e)
+                if not error_msg or error_msg == f"{error_type}()":
+                    error_msg = f"{error_type}: {repr(e)}"
+                error_trace = traceback.format_exc()
                 stats["errors"] = stats.get("errors", 0) + 1
-                skipped_files.append((str(file_path), f"Error: {str(e)}"))
-                logger.add_error("processing_error", f"Error processing {file_path}: {str(e)}", "Check file format and permissions")
-                console.print(f"[red]Error processing {file_path}: {e}[/red]")
+                skipped_files.append((str(file_path), f"Error: {error_msg}"))
+                logger.add_error("processing_error", f"Error processing {file_path}: {error_msg}", "Check file format and permissions")
+                console.print(f"[red]Error processing {file_path}: {error_msg}[/red]")
+                # Always print traceback for debugging
+                console.print(f"[dim]Traceback: {error_trace}[/dim]")
 
             progress.advance(task)
 
@@ -291,7 +300,7 @@ def preprocess(
         else:
             # Process all ingested notes
             db = get_db()
-            notes = list(db.db["notes"].rows_where("1=1"))
+            notes = builtins.list(db.db["notes"].rows_where("1=1"))
             
             if not notes:
                 logger.add_error("no_notes", "No notes found in database", "Run 'ingest' command first to add notes")
@@ -312,9 +321,16 @@ def preprocess(
             logger.finish(success=True)
 
     except Exception as e:
-        logger.add_error("preprocess_error", f"Error preprocessing: {str(e)}", "Check file format and permissions")
+        import traceback
+        error_type = type(e).__name__
+        error_msg = str(e) if str(e) else repr(e)
+        error_trace = traceback.format_exc()
+        logger.add_error("preprocess_error", f"Error preprocessing: {error_msg}", "Check file format and permissions")
         logger.finish(success=False)
-        console.print(f"[red]Error preprocessing: {e}[/red]")
+        console.print(f"[red]Error preprocessing: {error_type}: {error_msg}[/red]")
+        # Print traceback for debugging
+        if not error_msg or "recursion" in error_msg.lower() or "RecursionError" in error_type:
+            console.print(f"[dim]Traceback:\n{error_trace}[/dim]")
         raise typer.Exit(1)
 
 
@@ -378,15 +394,15 @@ def extract(
 
         # Get all notes for project
         if project:
-            notes = list(db.db["notes"].rows_where("project = ?", [project]))
+            notes = builtins.list(db.db["notes"].rows_where("project = ?", [project]))
         else:
-            notes = list(db.db["notes"].rows_where("1=1"))
+            notes = builtins.list(db.db["notes"].rows_where("1=1"))
 
         total_extractions = 0
 
         for note in notes:
             # Get segments for this note
-            segments_data = list(db.db["segments"].rows_where("note_id = ?", [note["id"]]))
+            segments_data = builtins.list(db.db["segments"].rows_where("note_id = ?", [note["id"]]))
             segments = [
                 Segment(
                     id=seg["id"],
@@ -576,9 +592,9 @@ def list(
 
     if themes:
         if project:
-            themes_list = list(db.db["themes"].rows_where("project = ?", [project]))
+            themes_list = builtins.list(db.db["themes"].rows_where("project = ?", [project]))
         else:
-            themes_list = list(db.db["themes"].rows_where("1=1"))
+            themes_list = builtins.list(db.db["themes"].rows_where("1=1"))
 
         if themes_list:
             table = Table(title="Themes", show_header=True, header_style="bold magenta")
@@ -611,9 +627,9 @@ def list(
 
     elif modules:
         if project:
-            modules_list = list(db.db["modules"].rows_where("project = ?", [project]))
+            modules_list = builtins.list(db.db["modules"].rows_where("project = ?", [project]))
         else:
-            modules_list = list(db.db["modules"].rows_where("1=1"))
+            modules_list = builtins.list(db.db["modules"].rows_where("1=1"))
 
         if modules_list:
             table = Table(title="Modules", show_header=True, header_style="bold magenta")
@@ -636,7 +652,7 @@ def list(
 
                 roles = set()
                 for theme_id in theme_ids:
-                    role_mappings = list(db.db["topic_role_map"].rows_where("topic_id = ?", [theme_id]))
+                    role_mappings = builtins.list(db.db["topic_role_map"].rows_where("topic_id = ?", [theme_id]))
                     for mapping in role_mappings:
                         roles.add(mapping.get("role", ""))
                 roles_str = ", ".join(sorted(roles)) if roles else "N/A"

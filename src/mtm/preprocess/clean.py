@@ -1,5 +1,6 @@
 """Text cleaning and preprocessing for meeting notes."""
 
+import builtins
 import re
 from datetime import datetime
 from pathlib import Path
@@ -17,9 +18,16 @@ from mtm.storage.db import get_db
 def download_nltk_data() -> None:
     """Download required NLTK data if not already present."""
     try:
-        nltk.data.find("tokenizers/punkt")
+        nltk.data.find("tokenizers/punkt_tab")
     except LookupError:
-        nltk.download("punkt", quiet=True)
+        try:
+            nltk.download("punkt_tab", quiet=True)
+        except Exception:
+            # Fallback to old punkt if punkt_tab fails
+            try:
+                nltk.data.find("tokenizers/punkt")
+            except LookupError:
+                nltk.download("punkt", quiet=True)
 
 
 def normalize_unicode(text: str) -> str:
@@ -309,6 +317,37 @@ def preprocess_file(file_path: str | Path, persist: bool = True) -> list[Segment
         note = parse_pdf(file_path)
     else:
         raise ValueError(f"Unsupported file type: {ext}")
+
+    # If persisting, look up the note in the database by source_path
+    # to get the correct note_id (the parsed note has a new UUID)
+    if persist:
+        db = get_db()
+        # Try multiple path formats
+        source_path_abs = str(file_path.resolve())
+        source_path_rel = str(file_path)
+        # Normalize path separators for Windows
+        source_path_abs_norm = source_path_abs.replace("\\", "/")
+        source_path_rel_norm = source_path_rel.replace("\\", "/")
+        
+        # Try to find note by source_path (try absolute, relative, and normalized versions)
+        existing_notes = builtins.list(db.db["notes"].rows_where("source_path = ?", [source_path_abs]))
+        if not existing_notes:
+            existing_notes = builtins.list(db.db["notes"].rows_where("source_path = ?", [source_path_rel]))
+        if not existing_notes:
+            existing_notes = builtins.list(db.db["notes"].rows_where("source_path = ?", [source_path_abs_norm]))
+        if not existing_notes:
+            existing_notes = builtins.list(db.db["notes"].rows_where("source_path = ?", [source_path_rel_norm]))
+        
+        if existing_notes:
+            # Use the note_id from the database
+            note.id = existing_notes[0]["id"]
+        else:
+            # If not found, try to find by source_file (filename)
+            source_file = file_path.name
+            existing_notes = builtins.list(db.db["notes"].rows_where("source_file = ?", [source_file]))
+            if existing_notes:
+                # Use the first matching note_id
+                note.id = existing_notes[0]["id"]
 
     return preprocess_note(note, persist=persist)
 
